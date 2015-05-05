@@ -23,8 +23,13 @@ module.exports = function(RED) {
     // require any external libraries we may need....
     //var foo = require("foo-library");
 
+    try {
+        var globalkeys = RED.settings.email || require(process.env.NODE_RED_HOME+"/../emailkeys.js");
+    } catch(err) {
+    }
+
     // The main node definition - most things happen in here
-    function SampleNode(n) {
+    function moni(n) {
         // Create a RED node
         RED.nodes.createNode(this,n);
 
@@ -39,6 +44,9 @@ module.exports = function(RED) {
         // this message once at startup...
         // Look at other real nodes for some better ideas of what to do....
         var msg = {};
+        var username = this.credentials.username;
+        var password = this.credentials.password;
+
         msg.topic = this.topic;
         msg.payload = "Hello world !"
 
@@ -62,6 +70,11 @@ module.exports = function(RED) {
 
     // Register the node by name. This must be called before overriding any of the
     // Node functions.
-    RED.nodes.registerType("moni",SampleNode);
+    RED.nodes.registerType("moni",moni, {
+      credentials: {
+         username: {type:"text"},
+         password: {type:"password"}
+     }
+    });
 
 }

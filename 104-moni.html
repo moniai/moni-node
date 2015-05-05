@@ -29,10 +29,14 @@
    <!-- The for and id attributes identify the corresponding property        -->
    <!-- (with the 'node-input-' prefix).                                     -->
    <!-- The available icon classes are defined Twitter Bootstrap glyphicons  -->
-    <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
-        <input type="text" id="node-input-topic" placeholder="Topic">
+   <div class="form-row">
+       <label for="node-input-username"><i class="icon-tag"></i> Username</label>
+       <input type="text" id="node-input-username">
     </div>
+    <div class="form-row">
+       <label for="node-input-password"><i class="icon-tag"></i> Password</label>
+       <input type="password" id="node-input-password">
+   </div>
 
     <br/>
     <!-- By convention, most nodes have a 'name' property. The following div -->
@@ -41,6 +45,8 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+
+
 </script>
 
 
@@ -60,10 +66,15 @@
 <!-- The example below shows a small subset of the properties that can be set-->
 <script type="text/javascript">
     RED.nodes.registerType('moni',{
-        category: 'input',      // the palette category
+        category: 'social-input',      // the palette category
+        color: "##ED202D",
         defaults: {             // defines the editable properties of the node
             name: {value:""},   //  along with default values.
             topic: {value:"", required:true}
+        },
+        credentials: {
+          username: {type:"text"},
+          password: {type:"password"}
         },
         inputs:1,               // set the number of inputs - only 0 or 1
         outputs:1,              // set the number of outputs - 0 to n
