@@ -17,16 +17,21 @@
 // If you use this as a template, update the copyright with your own name.
 
 // Sample Node-RED node file
-
 module.exports = function(RED) {
     "use strict";
-    // require any external libraries we may need....
-    //var foo = require("foo-library");
+     var urllib = require("url");
+     var http = require("follow-redirects").http;
+     var https = require("follow-redirects").https;
+     var querystring = require("querystring");
+     //var url = "https://api.moni.ai";
+     var url = "http://api.moni.ai/?squery=";
+     //var url = "http://google.com";
 
     try {
         var globalkeys = RED.settings.email || require(process.env.NODE_RED_HOME+"/../emailkeys.js");
     } catch(err) {
     }
+
 
     // The main node definition - most things happen in here
     function moni(n) {
@@ -48,17 +53,42 @@ module.exports = function(RED) {
         var password = this.credentials.password;
 
         msg.topic = this.topic;
-        msg.payload = "Hello world !"
-
-        // send out the message to the rest of the workspace.
-        // ... this message will get sent at startup so you may not see it in a debug node.
-        this.send(msg);
-
+        msg.payload = null;
         // respond to inputs....
         this.on('input', function (msg) {
-            node.warn("I saw a payload: "+msg.payload);
-            // in this example just send it straight on... should process it here really
-            node.send(msg);
+            //node.warn("I saw a payload: "+msg.payload);
+            node.status({fill:"blue",shape:"dot",text:"requesting"});
+            var opts = urllib.parse(url);
+            opts.method = "GET";
+            var payload = null;
+            if (this.credentials && this.credentials.user) {
+              //payload = "userid="+username+"&password="+password+"&platform=ios";
+            }
+            if(msg.payload){
+              url = url + querystring.escape(msg.payload);
+            }
+            node.warn("RequestURL:"+url);
+            var responseMsg = {};
+            var req = ((/^https/.test(url))?https:http).request(opts,function(res) {
+              res.on('data',function(chunk) {
+                  node.warn("did recive response: "+chunk.toString);
+                  msg.payload += chunk;
+              });
+              res.on('end',function() {
+                node.send(msg);
+                node.warn("end request: "+msg.payload);
+                node.status({});
+              });
+            });
+            req.on('error',function(err) {
+                msg.payload = err.toString() + " : " + url;
+                msg.statusCode = err.code;
+                node.warn("error: "+msg.payload +"error code:"+err.code);
+                node.send(msg);
+                node.status({fill:"red",shape:"ring",text:err.code});
+            });
+
+            req.end();
         });
 
         this.on("close", function() {
