@@ -71,8 +71,11 @@ module.exports = function(RED) {
             var responseMsg = {};
             var req = ((/^https/.test(url))?https:http).request(opts,function(res) {
               res.on('data',function(chunk) {
+                  node.status({fill:"blue",shape:"ring",text:"receing"});
                   node.warn("did recive response: "+chunk.toString);
-                  msg.payload += chunk;
+                  node.warn("has server url: "+this.serverURL);
+                  //msg.payload += chunk;
+                  msg.payload = this.serverURL;
               });
               res.on('end',function() {
                 node.send(msg);
